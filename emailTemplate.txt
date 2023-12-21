@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Downtime Notification</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #d9534f;
+    }
+    p {
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>System Downtime Notification</h1>
+    <p>Dear {{websiteName}} team,</p>
+    <p>We regret to inform you that your website system experienced downtime at the following timestamp:</p>
+    <p><strong>Timestamp:</strong> {{timestamp}}</p>
+    <p>We expect that you will resolve the issue and restore normal operations.</p>
+    <p>Thank you.</p>
+    <p>Sincerely,<br>Monitoring Team</p>
+  </div>
+</body>
+</html>
+
+
+System Downtime Notification\n
+
+Dear {{websiteName}} team,\n
+
+We regret to inform you that your system experienced downtime at the following timestamp:\n
+
+Timestamp: {{timestamp}}
+
+We expect to resolve the issue and restore normal operations.\n
+
+Thank you.\n
+
+Sincerely,\n
+Monitoring Team
