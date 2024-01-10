@@ -11,11 +11,31 @@ export class dbService {
     dbService.client = new PrismaClient();
   }
 
-  async addWebsite({ name, url }: Website): Promise<Website> {
+  async addWebsite({ name, url, email, userId }: Website): Promise<Website> {
     const res = await dbService.client.website.create({
       data: {
         name: name,
         url: url,
+        email: email,
+        userId: userId,
+      },
+    });
+    return res;
+  }
+
+  async getWebsiteDetails({ id }: { id: string }) {
+    const res = await dbService.client.website.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        stats: {
+          select: {
+            timestamp: true,
+            ownerNotified: true,
+            status: true,
+          },
+        },
       },
     });
     return res;
@@ -34,10 +54,13 @@ export class dbService {
         id: true,
         name: true,
         url: true,
+        email: true,
+        userId: true,
         stats: {
           select: {
             status: true,
             timestamp: true,
+            ownerNotified: true,
           },
         },
       },
@@ -45,17 +68,26 @@ export class dbService {
     return res;
   }
 
-  async getWebsites(): Promise<Website[]> {
+  async getWebsites({ userId }: { userId: string }): Promise<Website[]> {
+    const res = await dbService.client.website.findMany({
+      where: {
+        userId: userId,
+      },
+    });
+    return res;
+  }
+
+  async getWebsitesInDB(): Promise<Website[]> {
     const res = await dbService.client.website.findMany({
       where: {},
     });
     return res;
   }
 
-  async deleteWebsite({ name }: { name: string }): Promise<Website> {
+  async deleteWebsite({ id }: { id: string }): Promise<Website> {
     const res = await dbService.client.website.delete({
       where: {
-        name: name,
+        id: id,
       },
     });
     return res;
@@ -81,5 +113,124 @@ export class dbService {
       },
     });
     return res;
+  }
+
+  async optOutForNotification({ id }: { id: string }): Promise<Website> {
+    const res = await dbService.client.website.update({
+      where: {
+        id: id,
+      },
+      data: {
+        optedForNotification: false,
+      },
+    });
+    return res;
+  }
+
+  async optInForNotification({ id }: { id: string }): Promise<Website> {
+    const res = await dbService.client.website.update({
+      where: {
+        id: id,
+      },
+      data: {
+        optedForNotification: true,
+      },
+    });
+    return res;
+  }
+
+  async isSubscribed({ id }: { id: string }) {
+    const res = await dbService.client.website.findFirst({
+      where: {
+        id: id,
+      },
+    });
+
+    if (res?.optedForNotification) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async getNotifications({ id }: { id: string }) {
+    const res = await dbService.client.website.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        notifications: {
+          select: {
+            type: true,
+            sentAt: true,
+            downtimeAt: true,
+          },
+        },
+      },
+    });
+
+    return res;
+  }
+
+  async getStatsWithPendingNotification() {
+    const res = await dbService.client.website.findMany({
+      where: {
+        optedForNotification: true,
+        stats: {
+          some: {
+            ownerNotified: false,
+            status: 0,
+          },
+        },
+      },
+      include: {
+        stats: {
+          select: {
+            id: true,
+            timestamp: true,
+            ownerNotified: true,
+            status: true,
+          },
+        },
+      },
+    });
+    console.log("pending response: ", res);
+    return res;
+  }
+
+  async setStatusNotified({ statusId }: { statusId: number }) {
+    const res = await dbService.client.stats.update({
+      where: {
+        id: statusId,
+      },
+      data: {
+        ownerNotified: true,
+      },
+    });
+    return res;
+  }
+
+  async addNotification({
+    id,
+    type,
+    timestamps,
+  }: {
+    id: string;
+    type: string;
+    timestamps: string;
+  }) {
+    const res = await dbService.client.website.update({
+      where: {
+        id: id,
+      },
+      data: {
+        notifications: {
+          create: {
+            type: type,
+            downtimeAt: timestamps,
+          },
+        },
+      },
+    });
   }
 }

@@ -3,7 +3,7 @@ import { dbService } from "../services/dbService";
 
 export async function statusChecker() {
     const db = new dbService();
-    const response = await db.getWebsites();
+    const response = await db.getWebsitesInDB();
     console.log(response);
 
     response.map(async ({ url, name }) => {

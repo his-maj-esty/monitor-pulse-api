@@ -12,15 +12,29 @@ datasource db {
 
 model Website{
   id String @unique @default(uuid())
-  name String @unique
+  name String 
   url String
+  email String
+  optedForNotification Boolean @default(true)
   stats Stats[]
+  notifications Notification[]
+  userId String
 }
 
 model Stats{
   id Int @default(autoincrement()) @unique
   timestamp DateTime @default(now())
   status Int
+  ownerNotified Boolean @default(false)
+  website Website @relation(fields: [websiteId], references: [id])
+  websiteId String 
+}
+
+model Notification{
+  id String @default(uuid()) @id
+  type String
+  sentAt DateTime @default(now())
+  downtimeAt String
   website Website @relation(fields: [websiteId], references: [id])
   websiteId String 
 }
